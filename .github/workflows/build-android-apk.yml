@@ -47,11 +47,11 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install npm dependencies
-        run: npm ci
+      - name: Install npm dependencies without desktop postinstall
+        run: npm ci --ignore-scripts
 
-      - name: Install Capacitor Android tooling
-        run: npm install --no-save @capacitor/cli @capacitor/core @capacitor/android
+      - name: Install Capacitor Android tooling only
+        run: npm install --no-save --ignore-scripts @capacitor/cli @capacitor/core @capacitor/android
 
       - name: Build web assets for Android
         run: npm run build:android:web
