@@ -39,8 +39,12 @@ const configuration: webpack.Configuration = {
    * Determine the array of extensions that should be used to resolve modules.
    */
   resolve: {
+    alias: {
+      '/src': `${webpackPaths.srcRendererPath}/components/src`,
+      components: `${webpackPaths.srcRendererPath}/components/src/components`,
+    },
     extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'],
-    modules: [webpackPaths.srcPath, 'node_modules'],
+    modules: [webpackPaths.srcRendererPath, webpackPaths.srcPath, 'node_modules'],
   },
 
   plugins: [

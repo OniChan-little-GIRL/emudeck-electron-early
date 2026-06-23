@@ -1,0 +1,6 @@
+{
+  "appId": "org.emudeck.android",
+  "appName": "EmuDeck",
+  "webDir": "release/app/dist/renderer",
+  "bundledWebRuntime": false
+}
