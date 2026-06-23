@@ -1,0 +1,80 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      patch_mode:
+        description: Apply the Android Gradle patch before building.
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - skip
+      arch:
+        description: Android ABI target for the APK.
+        required: true
+        default: universal
+        type: choice
+        options:
+          - universal
+          - arm64
+          - armv7
+
+jobs:
+  build-apk:
+    name: Build APK (${{ inputs.arch }})
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Install Capacitor Android tooling
+        run: npm install --no-save @capacitor/cli @capacitor/core @capacitor/android
+
+      - name: Build web assets for Android
+        run: npm run build:android:web
+
+      - name: Create Capacitor Android project
+        run: npx cap add android
+
+      - name: Sync Capacitor project
+        run: npx cap sync android
+
+      - name: Patch Android project
+        if: ${{ inputs.patch_mode == 'patch' }}
+        env:
+          ANDROID_ARCH: ${{ inputs.arch }}
+        run: npm run android:patch -- --mode=patch --arch="$ANDROID_ARCH"
+
+      - name: Build debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: emudeck-android-${{ inputs.arch }}-debug-apk
+          path: android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error

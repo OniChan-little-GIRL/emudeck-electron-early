@@ -30,7 +30,8 @@ const configuration: webpack.Configuration = {
 
   mode: 'production',
 
-  target: ['web', 'electron-renderer'],
+  target:
+    process.env.CAPACITOR_BUILD === 'true' ? 'web' : ['web', 'electron-renderer'],
 
   entry: [path.join(webpackPaths.srcRendererPath, 'index.tsx')],
 
@@ -120,7 +121,7 @@ const configuration: webpack.Configuration = {
         removeAttributeQuotes: true,
         removeComments: true,
       },
-      isBrowser: false,
+      isBrowser: process.env.CAPACITOR_BUILD === 'true',
       isDevelopment: process.env.NODE_ENV !== 'production',
     }),
   ],
